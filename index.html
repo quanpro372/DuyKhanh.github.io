@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Game Website</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============ Style cho Modal ============ */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      .modal-content {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        max-width: 90%;
+        max-height: 90%;
+        overflow-y: auto;
+      }
+      /* Hiệu ứng hover và active cho nút lọc */
+      .filter-btn:hover {
+        filter: brightness(95%);
+      }
+      .filter-btn.active {
+        box-shadow: 0 0 0 2px #3b82f6;
+      }
+      /* Footer Privacy Policy được cố định ở dưới */
+      .footer-privacy {
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+      }
+      .fixed-bottom {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 pb-32">
+    <!-- ==================== Header ==================== -->
+    <header class="bg-white shadow">
+      <div class="container mx-auto px-4 py-2 flex items-center justify-between">
+        <!-- Logo: có sự kiện click để quay về trang chủ -->
+        <div
+          id="logo"
+          class="flex items-center cursor-pointer"
+          title="Trở về trang chủ"
+        >
+          <!-- Sử dụng background cờ Việt + chữ VN -->
+          <div
+            class="relative flex items-center justify-center h-10 w-10 rounded-full"
+            style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/2/21/Flag_of_Vietnam.svg'); background-size: cover;"
+          >
+            <span class="text-white font-bold">VN</span>
+          </div>
+          <span class="text-2xl font-bold ml-2">2A2Q</span>
+        </div>
+
+        <!-- Thanh công cụ: thêm icon cho các nút -->
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <i
+              class="fas fa-search absolute top-1/2 transform -translate-y-1/2 left-3 text-gray-400"
+            ></i>
+            <input
+              id="search-input"
+              class="border rounded pl-10 pr-4 py-2 w-96"
+              placeholder="Tìm kiếm 90 000 game của chúng tôi"
+              type="text"
+            />
+          </div>
+          <button
+            id="new-game-btn"
+            class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 transition"
+            title="Xem tất cả game"
+          >
+            <i class="fas fa-redo-alt mr-2"></i>Game Mới
+          </button>
+          <button
+            id="category-btn"
+            class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 transition"
+          >
+            <i class="fas fa-th-list mr-2"></i>Thể loại
+          </button>
+          <button
+            id="register-btn"
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+          >
+            <i class="fas fa-user-plus mr-2"></i>Đăng ký
+          </button>
+          <button
+            id="login-btn"
+            class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 transition"
+          >
+            <i class="fas fa-sign-in-alt mr-2"></i>Đăng nhập
+          </button>
+          <button class="bg-gray-200 px-4 py-2 rounded" title="Chuyển ngôn ngữ">
+            <i class="fas fa-globe"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== Main Content ==================== -->
+    <main class="container mx-auto px-4 py-4">
+      <!-- Các nút lọc (nhóm 1) -->
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button
+          class="filter-btn bg-pink-200 px-4 py-2 rounded"
+          data-category="cho-con-gai"
+        >
+          Cho Con Gái
+        </button>
+        <button
+          class="filter-btn bg-purple-200 px-4 py-2 rounded"
+          data-category="doi-khang"
+        >
+          Đối Kháng
+        </button>
+        <button
+          class="filter-btn bg-green-200 px-4 py-2 rounded"
+          data-category="lai-xe"
+        >
+          Lái xe
+        </button>
+        <button
+          class="filter-btn bg-orange-200 px-4 py-2 rounded"
+          data-category="ban-nhau"
+        >
+          Bắn Nhau
+        </button>
+        <button
+          class="filter-btn bg-green-500 text-white px-4 py-2 rounded"
+          data-category="chien-thuat-nhap-vai"
+        >
+          Chiến Thuật &amp; Nhập Vai
+        </button>
+        <button
+          class="filter-btn bg-yellow-200 px-4 py-2 rounded"
+          data-category="can-nao"
+        >
+          Cần Não
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="all"
+        >
+          Tất cả các thể loại
+        </button>
+      </div>
+      <!-- Các nút lọc (nhóm 2) -->
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="2-nguoi-choi"
+        >
+          2 Người chơi
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="sung"
+        >
+          Súng
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="xe-hoi"
+        >
+          Xe hơi
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="thoi-trang"
+        >
+          Thời trang
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="kinh-di"
+        >
+          Kinh dị
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="arcade"
+        >
+          Arcade
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="nau-an"
+        >
+          Nấu ăn
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="bong-da"
+        >
+          Bóng đá
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="3d"
+        >
+          3D
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="tat-ca"
+        >
+          Tất cả các thể
+        </button>
+      </div>
+      <!-- Các nút lọc (nhóm 3) -->
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="2-nguoi"
+        >
+          2 người
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="tank"
+        >
+          Tank
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="football"
+        >
+          Football
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="lua-va-nuoc"
+        >
+          Lửa và nước
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="pokemon"
+        >
+          Pokemon
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="2-player"
+        >
+          2 Player
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="papa"
+        >
+          Papa
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="roblox"
+        >
+          Roblox
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="zombie"
+        >
+          Zombie
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="fish"
+        >
+          Fish
+        </button>
+        <button
+          class="filter-btn bg-gray-200 px-4 py-2 rounded"
+          data-category="chess"
+        >
+          Chess
+        </button>
+      </div>
+
+      <!-- ==================== Grid Game: 30 game mẫu ==================== -->
+      <div
+        id="game-grid"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+      >
+        <!-- Game 1 -->
+        <a
+          href="https://s1.gombis.com/g2/toca-life-unlimited/?key=y8&value=default"
+          class="game-item"
+          data-title="Toca Life Unlimited"
+          data-category="cho-con-gai doi-khang"
+        >
+          <img
+            alt="Toca Life Unlimited"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/195809/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 2 -->
+        <a
+          href="https://html5.gamedistribution.com/939466b673784325be7725224abbd70d/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fmotorbike_&key=y8&value=default"
+          class="game-item"
+          data-title="Motorbike"
+          data-category="lai-xe ban-nhau"
+        >
+          <img
+            alt="Motorbike"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/164085/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 3 -->
+        <a
+          href="https://html5.gamedistribution.com/b2748f3655054dc7a1b5b13edfdd5b84/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fkeep_zombie_away&key=y8&value=default"
+          class="game-item"
+          data-title="Game 3"
+          data-category="chien-thuat-nhap-vai"
+        >
+          <img
+            alt="Keep Zombie Away"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/156987/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 4 -->
+        <a
+          href="https://html5.gamedistribution.com/9ec319450435426daa47f50331d8e3dc/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fclassic_sudoku_puzzle&key=y8&value=default"
+          class="game-item"
+          data-title="Game 4"
+          data-category="can-nao"
+        >
+          <img
+            alt="Classic Sudoku Puzzle"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/163965/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 5 -->
+        <a
+          href="https://html5.gamedistribution.com/03f124074b0049f89fdace0cacf8ead5/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Ffireboy_and_watergirl_5_elements&key=y8&value=default"
+          class="game-item"
+          data-title="Game 5"
+          data-category="2-nguoi-choi sung"
+        >
+          <img
+            alt="Fireboy and Watergirl 5 Elements"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/119168/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 6 -->
+        <a
+          href="https://html5.gamedistribution.com/337302b23b5943d8bcfc501d81d50cdb/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Ftraffic_jam_3d&key=y8&value=default"
+          class="game-item"
+          data-title="Game 6"
+          data-category="xe-hoi"
+        >
+          <img
+            alt="Traffic Jam 3D"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/152012/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 7 -->
+        <a
+          href="https://storage.y8.com/y8-studio/html5/toni/toddie_vintage_school_v2502051/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 7"
+          data-category="thoi-trang"
+        >
+          <img
+            alt="Toddie Vintage School"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/199473/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 8 -->
+        <a
+          href="https://html5.gamedistribution.com/585e28f239534ba2901bd2cbe03f146b/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fthe_survey&key=y8&value=default"
+          class="game-item"
+          data-title="Game 8"
+          data-category="kinh-di"
+        >
+          <img
+            alt="The Survey"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/189269/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 9 -->
+        <a
+          href="https://html5.gamedistribution.com/58dc8c934e864cf5a62ad9c7272eaf78/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Flast_war_survival_online&key=y8&value=default"
+          class="game-item"
+          data-title="Game 9"
+          data-category="arcade"
+        >
+          <img
+            alt="Last War Survival Online"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/173855/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 10 -->
+        <a
+          href="https://storage.y8.com/y8-studio/html5/toni/roxie_kitchen_kimchi_jjigae_v2411261/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 10"
+          data-category="nau-an"
+        >
+          <img
+            alt="Roxie's Kitchen: Kimchi Jjigae"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/194647/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 11 -->
+        <a
+          href="https://hello.freakxapps.com/play/football-stars?key=y8&value=default&newPubId=y8"
+          class="game-item"
+          data-title="Game 11"
+          data-category="bong-da football"
+        >
+          <img
+            alt="Football Stars"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/158319/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 12 -->
+        <a
+          href="https://html5.gamedistribution.com/ac12cd660de840bfbb2c633053209c09/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 12"
+          data-category="3d"
+        >
+          <img
+            alt="Block 3D"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/151992/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 13 -->
+        <a
+          href="https://storage.y8.com/y8-studio/html5/toni/murder_mafia_Y8_v2503171/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 13"
+          data-category="tat-ca"
+        >
+          <img
+            alt="Murder Mafia"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/168397/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 14 -->
+        <a
+          href="https://play.wgplayground.com/ifr/b7491702970e3b0b6de397f80a0a1844?key=y8&value=default"
+          class="game-item"
+          data-title="Game 14"
+          data-category="2-nguoi sung"
+        >
+          <img
+            alt="Hazmob FPS"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/199075/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 15 -->
+        <a
+          href="https://html5.gamedistribution.com/11561cc5bc754589bb654c782139a781/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Ftank_tank_&key=y8&value=default"
+          class="game-item"
+          data-title="Game 15"
+          data-category="tank"
+        >
+          <img
+            alt="Tank + Tank"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/132340/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 16 -->
+        <a
+          href="https://html5.gamemonetize.co/ikpi1ghjcghyj8jk95k5wif87fz7hfs2/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 16"
+          data-category="football bong-da"
+        >
+          <img
+            alt="Football Penalty"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/183147/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 17 -->
+        <a
+          href="https://html5.gamedistribution.com/3790681b69584409b7f681a8e400102d/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Ffireboy_and_watergirl_in_the_crystal_temple&key=y8&value=default"
+          class="game-item"
+          data-title="Game 17"
+          data-category="lua-va-nuoc 2-nguoi"
+        >
+          <img
+            alt="Fireboy and Watergirl in the Crystal Temple"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/126142/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 18 -->
+        <a
+          href="https://html5.gamedistribution.com/2f658de7229e49dba68786ffdc921e76/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fdynamons&key=y8&value=default"
+          class="game-item"
+          data-title="Game 18"
+          data-category="pokemon"
+        >
+          <img
+            alt="Dynamons"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/y8-thumbs/79084/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 19 -->
+        <a
+          href="https://storage.y8.com/y8-studio/unity_webgl/perion1111/2_player_airplane/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 19"
+          data-category="2-player"
+        >
+          <img
+            alt="2 Player: Airplane"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/182931/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 20 -->
+        <a
+          href="https://gamaverse.com/c/f/g/fnf-papas-funkeria-1658441201/index.html?key=y8&value=default"
+          class="game-item"
+          data-title="Game 20"
+          data-category="papa"
+        >
+          <img
+            alt="FNF Papa's Funkeria"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/153546/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 21 -->
+        <a
+          href="https://storage.y8.com/y8-studio/html5/frivgamestoday/b863baafe176/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 21"
+          data-category="roblox"
+        >
+          <img
+            alt="PG Coloring: Roblox"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/153198/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 22 -->
+        <a
+          href="https://i.simmer.io/@joel123/zombie-1?key=y8&value=default"
+          class="game-item"
+          data-title="Game 22"
+          data-category="zombie"
+        >
+          <img
+            alt="Zombie"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/163487/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 23 -->
+        <a
+          href="https://storage.y8.com/y8-studio/unity_webgl/Esar1/fish-as-a-dish/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 23"
+          data-category="fish"
+        >
+          <img
+            alt="Fish as a Dish"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/161355/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 24 -->
+        <a
+          href="https://html5.gamemonetize.co/onfo4mj3yd35j5a33bpkyg34d46a2w7q/"
+          class="game-item"
+          data-title="Game 24"
+          data-category="chess"
+        >
+          <img
+            alt="Chess"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/141559/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 25 -->
+        <a
+          href="https://bitent.com/html5/tiktok_diva_weekly_planner/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 25"
+          data-category="cho-con-gai"
+        >
+          <img
+            alt="TikTok Diva Weekly Planner"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/150606/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 26 -->
+        <a
+          href="https://game316158.konggames.com/gamez/0031/6158/live/index.html?key=y8&value=default"
+          class="game-item"
+          data-title="Game 26"
+          data-category="doi-khang"
+        >
+          <img
+            alt="Bat Outa Dot Dot"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/129078/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 27 -->
+        <a
+          href="https://html5.gamedistribution.com/897ed7478fe6461692125c4bd3563977/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fsupra_drift_3d&key=y8&value=default"
+          class="game-item"
+          data-title="Game 27"
+          data-category="lai-xe"
+        >
+          <img
+            alt="Supra Drift 3D"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/126458/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 28 -->
+        <a
+          href="https://storage.y8.com/y8-studio/unity_webgl/perion1111/cs_dust_v1_3a/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 28"
+          data-category="ban-nhau"
+        >
+          <img
+            alt="CS Dust"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/194911/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 29 -->
+        <a
+          href="https://html5.gamemonetize.co/ggk17hg85vxt2xznfr9e9cojowh3jp27/?key=y8&value=default"
+          class="game-item"
+          data-title="Game 29"
+          data-category="chien-thuat-nhap-vai"
+        >
+          <img
+            alt="Crown Guard"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/181479/small.gif"
+            width="150"
+          />
+        </a>
+        <!-- Game 30 -->
+        <a
+          href="https://html5.gamedistribution.com/f5ddfe5f7abc4632911a687d668b3b95/?gd_sdk_referrer_url=https%3A%2F%2Fvi.y8.com%2Fgames%2Fhome_pin_2&key=y8&value=default"
+          class="game-item"
+          data-title="Game 30"
+          data-category="can-nao"
+        >
+          <img
+            alt="Home Pin 2"
+            class="rounded"
+            height="150"
+            src="https://img.y8.com/cloud/v2-y8-thumbs-small-thumbnails-001/174625/small.png"
+            width="150"
+          />
+        </a>
+      </div>
+    </main>
+
+    <!-- ==================== Footer with Cookie Banner ==================== -->
+    <footer class="bg-white shadow mt-4">
+      <div
+        id="cookie-banner"
+        class="container mx-auto px-4 py-2 flex items-center justify-between"
+      >
+        <span>
+          Chúng tôi sử dụng cookie để xuất nội dung, phân tích lưu lượng truy cập
+          và quảng cáo.
+          <!-- Thêm liên kết Cookie Policy mở modal nếu cần -->
+          <a
+            id="cookie-policy-link"
+            class="text-blue-500 cursor-pointer ml-1"
+            href="#"
+            >Chính sách Cookie</a
+          >.
+        </span>
+        <button
+          id="close-banner-btn"
+          class="bg-red-500 text-white px-4 py-2 rounded"
+        >
+          Đã hiểu
+        </button>
+      </div>
+      <!-- Thanh thông tin chính sách bảo mật cố định luôn ở dưới -->
+      <div class="footer-privacy fixed-bottom text-center">
+        <span class="text-gray-600">
+          © 2025 2A2Q. Trang web sử dụng cookie và thu thập dữ liệu nhằm cải thiện trải nghiệm và dịch vụ. Vui lòng xem 
+          <a href="#" class="text-blue-500">Chính sách Bảo mật</a>
+          để biết thêm chi tiết.
+        </span>
+      </div>
+    </footer>
+
+    <!-- ==================== Modal cho Đăng ký ==================== -->
+    <div id="register-modal" class="modal">
+      <div class="modal-content">
+        <h2 class="text-xl font-bold mb-4">Đăng ký</h2>
+        <form id="register-form" class="space-y-4">
+          <input
+            class="border rounded px-4 py-2 w-full"
+            type="text"
+            placeholder="Tên người dùng"
+            required
+          />
+          <input
+            class="border rounded px-4 py-2 w-full"
+            type="email"
+            placeholder="Email"
+            required
+          />
+          <input
+            class="border rounded px-4 py-2 w-full"
+            type="password"
+            placeholder="Mật khẩu"
+            required
+          />
+          <button
+            type="submit"
+            class="bg-red-500 text-white px-4 py-2 rounded w-full"
+          >
+            Đăng ký
+          </button>
+        </form>
+        <button
+          id="close-register-modal"
+          class="mt-4 bg-gray-200 px-4 py-2 rounded"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== Modal cho Đăng nhập ==================== -->
+    <div id="login-modal" class="modal">
+      <div class="modal-content">
+        <h2 class="text-xl font-bold mb-4">Đăng nhập</h2>
+        <form id="login-form" class="space-y-4">
+          <input
+            class="border rounded px-4 py-2 w-full"
+            type="email"
+            placeholder="Email"
+            required
+          />
+          <input
+            class="border rounded px-4 py-2 w-full"
+            type="password"
+            placeholder="Mật khẩu"
+            required
+          />
+          <button
+            type="submit"
+            class="bg-gray-200 px-4 py-2 rounded w-full"
+          >
+            Đăng nhập
+          </button>
+        </form>
+        <button
+          id="close-login-modal"
+          class="mt-4 bg-gray-200 px-4 py-2 rounded"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== Modal cho Cookie Policy ==================== -->
+    <div id="cookie-modal" class="modal">
+      <div class="modal-content">
+        <h2 class="text-xl font-bold mb-4">Chính sách Cookie</h2>
+        <p class="mb-4">
+          Đây là nội dung mẫu của Chính sách Cookie. Chúng tôi sử dụng cookie để nâng cao trải nghiệm của người dùng, phân tích dữ liệu truy cập và phục vụ quảng cáo.
+        </p>
+        <p class="mb-4">[Nội dung chính sách cookie chi tiết ...]</p>
+        <button id="close-cookie-modal" class="bg-gray-200 px-4 py-2 rounded">
+          Đóng
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== Script xử lý chức năng ==================== -->
+    <script>
+      // ========= Chuyển hướng khi click vào logo =========
+      document.getElementById("logo").addEventListener("click", function () {
+        window.location.href = "index.html"; // Điều chỉnh URL nếu cần
+      });
+
+      // ========= Hàm hiển thị/ẩn Modal =========
+      function showModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+      }
+      function hideModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+      }
+
+      // ========= Sự kiện cho nút Đăng ký & Đăng nhập =========
+      document
+        .getElementById("register-btn")
+        .addEventListener("click", () => showModal("register-modal"));
+      document
+        .getElementById("login-btn")
+        .addEventListener("click", () => showModal("login-modal"));
+      document
+        .getElementById("close-register-modal")
+        .addEventListener("click", () => hideModal("register-modal"));
+      document
+        .getElementById("close-login-modal")
+        .addEventListener("click", () => hideModal("login-modal"));
+
+      // ========= Form Đăng ký & Đăng nhập (giả lập) =========
+      document
+        .getElementById("register-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          alert("Đăng ký thành công!");
+          hideModal("register-modal");
+        });
+      document.getElementById("login-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        alert("Đăng nhập thành công!");
+        hideModal("login-modal");
+      });
+
+      // ========= Cookie Banner: Ẩn khi nhấn nút "Đã hiểu" =========
+      document
+        .getElementById("close-banner-btn")
+        .addEventListener("click", function () {
+          document.getElementById("cookie-banner").style.display = "none";
+        });
+
+      // ========= Modal cho Cookie Policy =========
+      document
+        .getElementById("cookie-policy-link")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          showModal("cookie-modal");
+        });
+      document
+        .getElementById("close-cookie-modal")
+        .addEventListener("click", function () {
+          hideModal("cookie-modal");
+        });
+
+      // ========= Lọc game =========
+      const searchInput = document.getElementById("search-input");
+      const filterButtons = document.querySelectorAll(".filter-btn");
+      const gameItems = Array.from(document.querySelectorAll(".game-item"));
+
+      function filterGames() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        // Tìm nút active, nếu chưa có thì mặc định là "all"
+        const activeBtn = document.querySelector(".filter-btn.active");
+        const categoryFilter = activeBtn ? activeBtn.dataset.category.toLowerCase() : "all";
+
+        gameItems.forEach((item) => {
+          const title = item.dataset.title.toLowerCase();
+          const categories = item.dataset.category.toLowerCase();
+          const matchSearch = title.includes(searchTerm);
+          let matchCategory = false;
+          if (categoryFilter === "all" || categoryFilter === "tat-ca") {
+            matchCategory = true;
+          } else {
+            matchCategory = categories.includes(categoryFilter);
+          }
+          item.style.display = matchSearch && matchCategory ? "block" : "none";
+        });
+      }
+
+      searchInput.addEventListener("input", filterGames);
+      filterButtons.forEach((btn) => {
+        btn.addEventListener("click", function () {
+          filterButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          filterGames();
+        });
+      });
+
+      // ========= Nút "Game Mới": Reset tìm kiếm & hiển thị tất cả game =========
+      document.getElementById("new-game-btn").addEventListener("click", function () {
+        searchInput.value = "";
+        filterButtons.forEach((b) => b.classList.remove("active"));
+        gameItems.forEach((item) => (item.style.display = "block"));
+      });
+
+      // ========= Nút "Thể loại" =========
+      document.getElementById("category-btn").addEventListener("click", function () {
+        alert("Chức năng lọc thể loại mở rộng sẽ được tích hợp sau.");
+      });
+    </script>
+  </body>
+</html>
